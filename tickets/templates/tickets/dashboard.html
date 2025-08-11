@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Dashboard</h2>
+
+<form method="post" class="mb-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Auto-Assign Agents by Category</button>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th>Customer</th>
+        <th>Email</th>
+        <th>Description</th>
+        <th>Urgency</th>
+        <th>Category</th>
+        <th>Sentiment</th>
+        <th>Priority Score</th>
+        <th>Assigned Agent</th>
+        <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ticket in tickets %}
+        <tr>
+            <td>{{ ticket.customer_name }}</td>
+            <td>{{ ticket.email }}</td>
+            <td>{{ ticket.description|truncatechars:75 }}</td>
+            <td>{{ ticket.urgency }}</td>
+            <td>{{ ticket.category }}</td>
+            <td>
+                {% if ticket.sentiment >= 0.05 %}
+                    <span class="badge bg-success">Positive</span>
+                {% elif ticket.sentiment <= -0.05 %}
+                    <span class="badge bg-danger">Negative</span>
+                {% else %}
+                    <span class="badge bg-secondary">Neutral</span>
+                {% endif %}
+            </td>
+            <td>{{ ticket.priority_score|floatformat:2 }}</td>
+            <td>{{ ticket.assigned_agent|default:"(Unassigned)" }}</td>
+            <td>{{ ticket.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="9" class="text-center">No tickets found.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
